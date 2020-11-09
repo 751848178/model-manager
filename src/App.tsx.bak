@@ -1,0 +1,64 @@
+import React, { PureComponent } from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter as Router, Switch } from "react-router-dom";
+
+import routers from "@/routers/Route";
+import { flatRoute } from "@/routers/utils";
+import { PageRole } from "@global/enum/Role";
+import { IRouteItem } from "@global/type/Route";
+
+import AuthRoute from "@component/AuthRoute";
+import Login from "@page/Login";
+
+import "@style/app";
+
+class App extends PureComponent {
+
+	state = {
+		collapsed: false,
+	};
+
+	toggle = () => {
+		this.setState({
+			collapsed: !this.state.collapsed,
+		});
+	};
+
+	render() {
+		const { prefix, routes } = routers;
+
+		return (
+			<Router>
+				<Switch>
+					<AuthRoute path={`${prefix}/login`} exact roles={[PageRole.Login]} component={Login} />
+					{/* <Layout>
+						{flatRoute(routes).map((route: IRouteItem) => {
+							let path = route.path;
+							if (path instanceof Array) {
+								path = path.map((p: string) => prefix + p);
+							} else if (typeof path === "string") {
+								path = prefix + path;
+							}
+							return (
+								<AuthRoute
+									path={path}
+									exact={route.exact}
+									component={route.component}
+									role={PageRole.Super}
+									roles={route.roles}
+									key={String(route.path)}
+								/>
+							);
+						})}
+					</Layout> */}
+				</Switch>
+			</Router>
+		);
+	}
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+
+if (module.hot) {
+	module.hot.accept();
+}

@@ -1,6 +1,6 @@
 import { actionFactory, ActionGenerator } from './Action';
-import { selectorFactory } from './Selector';
-import { Dictionary, ModelOption, SelectMap } from './typing';
+import { SelectMap, selectorFactory } from './Selector';
+import { Dictionary, ModelOption } from './typing';
 
 
 export class Model<TState = Dictionary, TActions = Dictionary<Record<string, ActionGenerator>>> {

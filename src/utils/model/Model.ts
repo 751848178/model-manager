@@ -1,10 +1,9 @@
-import { useSelector } from 'react-redux';
-import { ActionCreater, actionFactory, CreateAction } from './Action';
+import { actionFactory, ActionGenerator } from './Action';
 import { selectorFactory } from './Selector';
-import { DefaultAction, Dictionary, ModelOption, TSelectorMapping } from './typing';
+import { Dictionary, ModelOption, TSelectorMapping } from './typing';
 
 
-export class Model<TState = Dictionary, TActions = Dictionary<Record<>>> {
+export class Model<TState = Dictionary, TActions = Dictionary<Record<string, ActionGenerator>>> {
 	private initialState: TState = {} as TState;
 	private namespace: string = '';
 	private _select: TSelectorMapping<TState>;

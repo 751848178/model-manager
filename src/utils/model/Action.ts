@@ -7,7 +7,7 @@ export type ReturnAction<TPayload = {}, TMeta = {}> = Action<string> & {
 	meta: TMeta,
 };
 
-export type ActionGenerator<TPayload, TMeta> = (payload: TPayload, meta: TMeta) => ReturnAction<TPayload, TMeta>
+export type ActionGenerator<TPayload = {}, TMeta = {}> = (payload: TPayload, meta: TMeta) => ReturnAction<TPayload, TMeta>
 
 export type CreateAction = <TPayload = {}, TMeta = {}>(type: string) => ActionGenerator<TPayload, TMeta>;
 
@@ -30,7 +30,7 @@ export function actionFactory<TAction>(actionCreator: ActionCreator<TAction>): T
 }
 
 
-/* Type inference test */
+/* Type inference test *
 const action = actionFactory((createAction: CreateAction) => {
 	return {
 		setAge: createAction<number>('setAge')

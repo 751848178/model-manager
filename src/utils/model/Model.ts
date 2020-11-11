@@ -17,14 +17,14 @@ export class Model<TState = Dictionary, TActions = Dictionary<Record<string, Act
 	}
 
 	private _effects: Effects = {}
-	private _reducers: Reducers<S> = {};
-	getEffects() {
-		return this.effects;
+	get effects(): Readonly<Effects> {
+		return this._effects;
 	}
-	getReducer() {
+	private _reducers: Reducers<TState> = {};
+	get reducers(): Readonly<Reducers<TState>> {
 		return {
 			[this.namespace]: (state: any = this.initialState, action: any) => {
-				const reducer = this.reducers[action.type] || (() => void 0);
+				const reducer = this._reducers[action.type] || (() => void 0);
 				return reducer(state, action) || state;
 			}
 		};
@@ -35,29 +35,20 @@ export class Model<TState = Dictionary, TActions = Dictionary<Record<string, Act
 		this.namespace = namespace;
 		this._select = selectorFactory(namespace, initialState);
 		this._action = actionFactory(actions);
-		// const selectorArr: SelectMap<TState>[] = Object.keys(initialState).map((key) => {
-		// 	const itemSelector: SelectMap<TState> = {
-		// 		[key]: (state: any) => {
-		// 			return state?.[this.namespace || '']?.[key];
-		// 		},
-		// 	} as SelectMap<TState>;
-		// 	return itemSelector;
-		// });
-		// this._select = Object.assign({}, ...selectorArr);
 	}
 	private addReducer = (action: string, reducer: Reducer) => {
-		const _reducer: Reducer = (state: S, _action: any) => {
+		const _reducer: Reducer = (state: TState, _action: any) => {
 			if (_action.type !== action) return state;
 			const newState = reducer(state, _action);
 			return newState;
 		}
 		this.reducers[action] = _reducer;
 	}
-	registerReducer(callback: ReducerCallback): Model<S> {
-		callback(this.actions, new ReducerFactory<S>(this.addReducer));
+	registerReducer(callback: ReducerCallback): Model<TState> {
+		callback(this.actions, new ReducerFactory<TState>(this.addReducer));
 		return this;
 	};
-	registerEffect(callback: EffectCallback): Model<S> {
+	registerEffect(callback: EffectCallback): Model<TState> {
 		const addEffect = (action: string, effect: EffectFn, takeCallback?: any) => {
 			const reducerAction = `reducer_${action}`
 			function* _effect() {

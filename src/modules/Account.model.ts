@@ -1,5 +1,5 @@
 import { UserInfo } from "@/global/type/Account";
-import { sagaFactory } from "@/utils/model.version.1/SagaFactory";
+import { Model } from "@/utils/model/Model";
 
 interface InitialState {
 	userInfo: UserInfo;
@@ -13,7 +13,8 @@ const initialState: InitialState = {
 	},
 }
 
-const AccountModule = sagaFactory.registerModule<InitialState>(initialState, {
+const AccountModule = new Model({
+	initialState,
 	namespace: "account",
 	actions: (actionCreator) => {
 		return {
@@ -21,7 +22,7 @@ const AccountModule = sagaFactory.registerModule<InitialState>(initialState, {
 			fetchLogout: actionCreator("logout"),
 		};
 	}
-}).registerReducer((moduleAction, factory) => {
+})/* .registerReducer((moduleAction, factory) => {
 	factory.useReducer(moduleAction.fetchLogin, (state, { payload }) => {
 		return {
 			...state,
@@ -43,6 +44,9 @@ const AccountModule = sagaFactory.registerModule<InitialState>(initialState, {
 			}
 		});
 	});
-});
+}) */;
+
+AccountModule.select.userInfo;
+AccountModule.action.fetchLogin;
 
 export default AccountModule;

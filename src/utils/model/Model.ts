@@ -1,37 +1,24 @@
 import { useSelector } from 'react-redux';
-import { TSelectorMapping } from './typing';
+import { ActionCreater, actionFactory, CreateAction } from './Action';
+import { selectorFactory } from './Selector';
+import { DefaultAction, Dictionary, ModelOption, TSelectorMapping } from './typing';
 
 
-class Module<TState extends Record<string, any> = {}, TActions = {}> {
-	namespace: string = '';
-	private _select: (keyof TState)[] = [];
-	get select(): TSelectorMapping<TState> {
-		const selectorArr: TSelectorMapping<TState>[] = this._select.map((key) => {
-			const itemSelector: TSelectorMapping<TState> = {
-				[key]: <TSelector = unknown>(state: TState): TSelector => {
-					return state?.[this?.namespace || '']?.[key];
-				},
-			} as TSelectorMapping<TState>;
-			return itemSelector;
-		});
-		return Object.assign({}, ...selectorArr);
+export class Model<TState = Dictionary, TActions = Dictionary<Record<>>> {
+	private initialState: TState = {} as TState;
+	private namespace: string = '';
+	private _select: TSelectorMapping<TState>;
+	get select(): Readonly<TSelectorMapping<TState>> {
+		return this._select;
 	};
 
-	private _action: TActions = {};
-	get action(): TActions {
-		{
-			[key: string]: (params: string, meta: { resolve: (res: any) => void, reject: (err: any) => void}) => {
-
-			}
-		};
-		return {};
+	private _action: Readonly<TActions> = {} as TActions;
+	get action(): Readonly<TActions> {
+		return this._action;
 	}
 
-	private actionCreator<TParams, TMeta>(actionName: string): Actions {
-		return () => {};
-	}
-	private effects: Effects = {}
-	private reducers: Reducers<S> = {};
+	private _effects: Effects = {}
+	private _reducers: Reducers<S> = {};
 	getEffects() {
 		return this.effects;
 	}
@@ -43,16 +30,21 @@ class Module<TState extends Record<string, any> = {}, TActions = {}> {
 			}
 		};
 	}
-	constructor(public initialState: S, options: ModuleOption) {
-		const { actions, namespace } = options;
+	constructor(options: ModelOption<TState, TActions>) {
+		const { actions, namespace, initialState } = options;
+		this.initialState = initialState;
 		this.namespace = namespace;
-		this._select = Object.assign({}, ...Object.keys(initialState).map((key: string) => {
-			return { [key]: [namespace, key] };
-		}));
-		const actionCreator: ActionCreator = (action: string) => {
-			return `${namespace}_${action}`;
-		}
-		this.actions = actions(actionCreator);
+		this._select = selectorFactory(namespace, initialState);
+		this._action = actionFactory(actions);
+		// const selectorArr: TSelectorMapping<TState>[] = Object.keys(initialState).map((key) => {
+		// 	const itemSelector: TSelectorMapping<TState> = {
+		// 		[key]: (state: any) => {
+		// 			return state?.[this.namespace || '']?.[key];
+		// 		},
+		// 	} as TSelectorMapping<TState>;
+		// 	return itemSelector;
+		// });
+		// this._select = Object.assign({}, ...selectorArr);
 	}
 	private addReducer = (action: string, reducer: Reducer) => {
 		const _reducer: Reducer = (state: S, _action: any) => {
@@ -62,11 +54,11 @@ class Module<TState extends Record<string, any> = {}, TActions = {}> {
 		}
 		this.reducers[action] = _reducer;
 	}
-	registerReducer(callback: ReducerCallback): Module<S> {
+	registerReducer(callback: ReducerCallback): Model<S> {
 		callback(this.actions, new ReducerFactory<S>(this.addReducer));
 		return this;
 	};
-	registerEffect(callback: EffectCallback): Module<S> {
+	registerEffect(callback: EffectCallback): Model<S> {
 		const addEffect = (action: string, effect: EffectFn, takeCallback?: any) => {
 			const reducerAction = `reducer_${action}`
 			function* _effect() {

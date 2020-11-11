@@ -5,7 +5,7 @@ import { createStore, applyMiddleware } from "redux";
 import { TabBar } from "antd-mobile";
 import createSagaMiddleware from "redux-saga";
 import Index from "./pages/Index";
-import { sagaFactory } from "./utils/model/SagaFactory";
+import { sagaFactory } from "./utils/version.1/SagaFactory";
 // import "@module/index";
 
 const sagaMiddleware = createSagaMiddleware();

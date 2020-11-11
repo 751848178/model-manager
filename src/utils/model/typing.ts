@@ -1,15 +1,9 @@
-import { ActionCreator, CreateAction } from "./ActionCreater";
+import { ActionCreator, CreateAction } from "./Action";
 
 
 export type Dictionary<T = {}> = {
 	[P in keyof T]: T[P];
 }
-
-export type DefaultAction<TAction = any> = {
-	[P in keyof TAction]: TAction[P];
-}
-
-export type TSelectorMapping<TState = Dictionary> = Record<keyof TState, <S, R>(state: S) => R>;
 
 export interface ModelOption<TState, TAction> {
 	initialState: TState;

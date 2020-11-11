@@ -1,13 +1,13 @@
 import { actionFactory, ActionGenerator } from './Action';
 import { selectorFactory } from './Selector';
-import { Dictionary, ModelOption, TSelectorMapping } from './typing';
+import { Dictionary, ModelOption, SelectMap } from './typing';
 
 
 export class Model<TState = Dictionary, TActions = Dictionary<Record<string, ActionGenerator>>> {
 	private initialState: TState = {} as TState;
 	private namespace: string = '';
-	private _select: TSelectorMapping<TState>;
-	get select(): Readonly<TSelectorMapping<TState>> {
+	private _select: SelectMap<TState>;
+	get select(): Readonly<SelectMap<TState>> {
 		return this._select;
 	};
 
@@ -35,12 +35,12 @@ export class Model<TState = Dictionary, TActions = Dictionary<Record<string, Act
 		this.namespace = namespace;
 		this._select = selectorFactory(namespace, initialState);
 		this._action = actionFactory(actions);
-		// const selectorArr: TSelectorMapping<TState>[] = Object.keys(initialState).map((key) => {
-		// 	const itemSelector: TSelectorMapping<TState> = {
+		// const selectorArr: SelectMap<TState>[] = Object.keys(initialState).map((key) => {
+		// 	const itemSelector: SelectMap<TState> = {
 		// 		[key]: (state: any) => {
 		// 			return state?.[this.namespace || '']?.[key];
 		// 		},
-		// 	} as TSelectorMapping<TState>;
+		// 	} as SelectMap<TState>;
 		// 	return itemSelector;
 		// });
 		// this._select = Object.assign({}, ...selectorArr);

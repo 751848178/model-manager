@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { AccountModule } from "@module/index";
-import useSelector from "@/hooks/useSelector";
+import { accountModel } from "@model/index";
 import useEffectAction from "@/hooks/useEffectAction";
+import { useSelector } from "react-redux";
 
 
 const Index: React.FC = () => {
-	const userInfo = useSelector(AccountModule.select.userInfo);
-	const [fetchLogin] = useEffectAction(AccountModule.actions.fetchLogin);
-	const [fetchLogout] = useEffectAction(AccountModule.actions.fetchLogout);
+	const userInfo = useSelector(accountModel.select.userInfo);
+	const [fetchLogin] = useEffectAction(accountModel.action.fetchLogin);
+	const [fetchLogout] = useEffectAction(accountModel.action.fetchLogout);
 
 	const [refresh, setRefresh] = useState(false);
 	

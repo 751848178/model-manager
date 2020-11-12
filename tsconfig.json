@@ -73,8 +73,8 @@
 			"@lang/*": [
 				"src/langs/*"
 			],
-			"@module/*": [
-				"src/modules/*",
+			"@model/*": [
+				"src/models/*",
 			],
 			"@api/*": [
 				"src/apis/*"

@@ -10,3 +10,5 @@ export interface ModelOption<TState, TAction> {
 	namespace: string;
 	actions: ActionCreator<TAction>;
 }
+
+// export type ModelAction<TAction, TActionKey extends keyof TAction> = TAction[TActionKey];

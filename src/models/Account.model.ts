@@ -13,7 +13,7 @@ const initialState: InitialState = {
 	},
 }
 
-const AccountModule = new Model({
+const accountModule = new Model({
 	initialState,
 	namespace: "account",
 	actions: (actionCreator) => {
@@ -22,15 +22,15 @@ const AccountModule = new Model({
 			fetchLogout: actionCreator("logout"),
 		};
 	}
-})/* .registerReducer((moduleAction, factory) => {
-	factory.useReducer(moduleAction.fetchLogin, (state, { payload }) => {
+}).registerReducer((modelAction, factory) => {
+	factory.register((modelAction as any).fetchLogin, (state, { payload }) => {
 		return {
 			...state,
 			userInfo: payload
 		};
 	});
-}).registerEffect((moduleAction, factory) => {
-	factory.useAction(moduleAction.fetchLogout, function* (payload, { put }) {
+}).registerEffect((modelAction, factory) => {
+	factory.register((modelAction as any).fetchLogout, function* (payload, { put }) {
 		yield new Promise((resolve, reject) => {
 			setTimeout(() => {
 				resolve();
@@ -44,9 +44,6 @@ const AccountModule = new Model({
 			}
 		});
 	});
-}) */;
+});
 
-AccountModule.select.userInfo;
-AccountModule.action.fetchLogin;
-
-export default AccountModule;
+export default accountModule;

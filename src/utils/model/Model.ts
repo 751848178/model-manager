@@ -1,9 +1,13 @@
+import { Action } from 'redux';
+import { put } from 'redux-saga/effects';
 import { actionFactory, ActionGenerator } from './Action';
+import { EffectFactory, EffectRegister, Effects } from './Effect';
+import { ReducerFactory, ReducerRegister, Reducers } from './Reducer';
 import { SelectMap, selectorFactory } from './Selector';
 import { Dictionary, ModelOption } from './typing';
 
 
-export class Model<TState = Dictionary, TActions = Dictionary<Record<string, ActionGenerator>>> {
+export class Model<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator>>> {
 	private initialState: TState = {} as TState;
 	private namespace: string = '';
 	private _select: SelectMap<TState>;
@@ -11,69 +15,56 @@ export class Model<TState = Dictionary, TActions = Dictionary<Record<string, Act
 		return this._select;
 	};
 
-	private _action: Readonly<TActions> = {} as TActions;
-	get action(): Readonly<TActions> {
+	private _action: Readonly<TAction> = {} as TAction;
+	get action(): Readonly<TAction> {
 		return this._action;
 	}
 
-	private _effects: Effects = {}
-	get effects(): Readonly<Effects> {
-		return this._effects;
-	}
-	private _reducers: Reducers<TState> = {};
+	private _reducers: Reducers<TState, TAction> = {} as Reducers<TState, TAction>;
 	get reducers(): Readonly<Reducers<TState>> {
 		return {
-			[this.namespace]: (state: any = this.initialState, action: any) => {
+			[this.namespace]: (state: any = this.initialState, action: Action<keyof TAction>) => {
 				const reducer = this._reducers[action.type] || (() => void 0);
 				return reducer(state, action) || state;
 			}
 		};
 	}
-	constructor(options: ModelOption<TState, TActions>) {
+
+	private _effects: Effects<TAction> = {} as Effects<TAction>;
+	get effects(): Readonly<Effects<TAction>> {
+		return this._effects;
+	}
+
+	constructor(options: ModelOption<TState, TAction>) {
 		const { actions, namespace, initialState } = options;
 		this.initialState = initialState;
 		this.namespace = namespace;
 		this._select = selectorFactory(namespace, initialState);
 		this._action = actionFactory(actions);
 	}
-	private addReducer = (action: string, reducer: Reducer) => {
-		const _reducer: Reducer = (state: TState, _action: any) => {
-			if (_action.type !== action) return state;
-			const newState = reducer(state, _action);
-			return newState;
+
+	private setState<TPayload>(payload: TPayload) {
+		return {
+			type: 'SET_STATE',
+			payload,
 		}
-		this.reducers[action] = _reducer;
 	}
-	registerReducer(callback: ReducerCallback): Model<TState> {
-		callback(this.actions, new ReducerFactory<TState>(this.addReducer));
+
+	registerReducer(reducerRegister: ReducerRegister): Model<TState, TAction> {
+		const reducerFactory = new ReducerFactory<TState, TAction>();
+		reducerRegister<TState, TAction>(this.action, reducerFactory);
+		this._reducers = reducerFactory.reducers;
 		return this;
 	};
-	registerEffect(callback: EffectCallback): Model<TState> {
-		const addEffect = (action: string, effect: EffectFn, takeCallback?: any) => {
-			const reducerAction = `reducer_${action}`
-			function* _effect() {
-				yield (takeEvery || takeCallback)(action, function* (payload: any) {
-					function* _put(data: any) {
-						return yield put({
-							type: reducerAction,
-							payload: data,
-						});
-					}
-					yield effect(payload, {
-						put: _put,
-						call,
-					});
-				});
-			}
-			this.effects[action] = _effect;
-			this.addReducer(reducerAction, (state: any, { payload }) => {
-				return {
-					...state,
-					...payload
-				}
-			});
-		}
-		callback(this.actions, new EffectFactory(addEffect));
+
+	registerEffect(effectRegister: EffectRegister): Model<TState, TAction> {
+		const effectFactory = new EffectFactory<TAction>();
+		effectRegister<TAction>(this.action, effectFactory);
+		this._effects = effectFactory.effects;
 		return this;
 	};
+
+	reset() {
+		put(this.setState(this.initialState));
+	}
 }

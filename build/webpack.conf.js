@@ -24,7 +24,7 @@ module.exports = {
 			"@style": resolvePath("src/styles"),
 			"@image": resolvePath("src/images"),
 			"@api": resolvePath("src/apis"),
-			"@module": resolvePath("src/modules"),
+			"@model": resolvePath("src/models"),
 			"@hook": resolvePath("src/hooks"),
 		},
         extensions: [".js", ".jsx", ".scss", ".sass", ".json", ".ts", ".tsx"],

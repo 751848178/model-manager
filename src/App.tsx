@@ -5,12 +5,14 @@ import { createStore, applyMiddleware } from "redux";
 import { TabBar } from "antd-mobile";
 import createSagaMiddleware from "redux-saga";
 import Index from "./pages/Index";
-import { sagaFactory } from "./utils/version.1/SagaFactory";
+import { modelManager } from "./utils/model/ModelManager";
+// import { sagaFactory } from "./utils/model.version.1/SagaFactory";
+
 // import "@module/index";
 
 const sagaMiddleware = createSagaMiddleware();
-const store = createStore(sagaFactory.getReducers(), applyMiddleware(sagaMiddleware));
-sagaMiddleware.run(sagaFactory.getEffects());
+const store = createStore(modelManager.getReducers(), applyMiddleware(sagaMiddleware));
+sagaMiddleware.run(modelManager.getEffects());
 
 const App: React.FC = () => {
 	const [tabbarShow, setTabbarShow] = useState(true);

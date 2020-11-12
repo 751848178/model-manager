@@ -1,0 +1,41 @@
+import { Reducer } from "redux";
+import { ActionGenerator } from "./Action";
+import { Dictionary } from "./typing";
+
+export type ReducerAction<TAction> = keyof TAction | 'SET_STATE';
+
+export type ReducerRegister = <TState, TAction>(actions: TAction, factory: ReducerFactory<TState, TAction>) => void;
+export type Reducers<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in ReducerAction<TAction>]: Reducer<TState>; };
+
+export class ReducerFactory<TState, TAction> {
+
+	private _reducers: Reducers<TState, TAction> = {} as Reducers<TState, TAction>;
+	get reducers() {
+		return this._reducers;
+	}
+
+	constructor() {
+		this._reducers.SET_STATE = <TState>(state: TState, _action: any) => {
+			if (_action.type !== 'SET_STATE') {
+				return state;
+			}
+			return {
+				...state,
+				..._action.payload,
+			};
+		};
+	}
+
+	register(modelAction: ActionGenerator, reducer: Reducer): ReducerFactory<TState, TAction> {
+		const { type } = modelAction();
+		const _reducer: Reducer = (state: TState, _action: any) => {
+			if (_action.type !== type) {
+				return state;
+			}
+			const newState = reducer(state, _action);
+			return newState;
+		}
+		this._reducers[<keyof TAction>type] = _reducer;
+		return this;
+	}
+}

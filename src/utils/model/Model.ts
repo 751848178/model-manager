@@ -43,7 +43,7 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 		this._action = actionFactory(actions);
 	}
 
-	private setState<TPayload>(payload: TPayload) {
+	setState<TPayload>(payload: TPayload) {
 		return {
 			type: 'SET_STATE',
 			payload,

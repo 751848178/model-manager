@@ -6,9 +6,12 @@ import { TabBar } from "antd-mobile";
 import createSagaMiddleware from "redux-saga";
 import Index from "./pages/Index";
 import { modelManager } from "./utils/model/ModelManager";
+import models from "@model/index";
 // import { sagaFactory } from "./utils/model.version.1/SagaFactory";
 
 // import "@module/index";
+
+modelManager.registerModels(Object.values(models));
 
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(modelManager.getReducers(), applyMiddleware(sagaMiddleware));

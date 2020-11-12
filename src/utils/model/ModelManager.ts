@@ -7,14 +7,14 @@ import { Reducers } from "./Reducer";
 
 interface ModelManager {
 	models: Model[];
-	registerModel: (models: Model[]) => void;
+	registerModels: (models: Model<any, any>[]) => void;
 	getReducers: () => CombinedState<any>;
 	getEffects: () => any;
 }
 
 export const modelManager: ModelManager = {
 	models: [],
-	registerModel(models: Model[]) {
+	registerModels(models: Model<any, any>[]) {
 		this.models = [
 			...this.models,
 			...models

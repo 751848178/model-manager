@@ -36,6 +36,7 @@ const accountModule = new Model({
 				resolve();
 			}, 3000);
 		});
+		
 		yield put({
 			userInfo: {
 				username: "",

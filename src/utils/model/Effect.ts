@@ -10,28 +10,35 @@ interface EffectsHandles {
 
 type EffectFn = (payload: any, effects: EffectsHandles) => void;
 
-export type EffectRegister = <TAcion>(actions: TAcion, factory: EffectFactory<TAcion>) => void;
-export type Effects<TAcion = Dictionary<Record<string, ActionGenerator>>> = { [action in keyof TAcion]: () => Generator; };
+export type EffectRegister = <TAction>(actions: TAction, factory: EffectFactory<TAction>) => void;
+export type Effects<TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in keyof TAction]: () => Generator; };
 
-export class EffectFactory<TAcion> {
+export class EffectFactory<TAction> {
 	constructor() { }
 
-	private _effects: Effects<TAcion> = {} as Effects<TAcion>;
+	private _effects: Effects<TAction> = {} as Effects<TAction>;
 	get effects() {
 		return this._effects;
 	}
 
-	register(action: keyof TAcion, effect: EffectFn, takeHandle?: any): EffectFactory<TAcion> {
+	register(modelAction: ActionGenerator, effect: EffectFn, takeHandle?: any): EffectFactory<TAction> {
+		const { type } = modelAction();
 		function* _effect() {
-			yield (takeHandle || takeEvery)(action, function* (payload: any) {
+			yield (takeHandle || takeEvery)(type, function* (payload: any) {
+				function* _put(data: any) {
+					return yield put({
+						type,
+						payload: data,
+					});
+				}
 				yield effect(payload, {
-					put,
+					put: _put,
 					call,
 					all,
 				});
 			});
 		}
-		this._effects[action] = _effect;
+		this._effects[<keyof TAction>type] = _effect;
 		return this;
 	};
 }

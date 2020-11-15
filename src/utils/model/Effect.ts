@@ -1,16 +1,16 @@
 import { all, call, put, takeEvery } from "redux-saga/effects";
-import { ActionGenerator } from "./Action";
+import { ActionGenerator, ReturnAction } from "./Action";
 import { Dictionary } from "./typing";
 
-interface EffectsHandles {
+export interface EffectsHandles {
 	call: any;
 	put: any;
 	all: any;
 }
 
-type EffectFn = (payload: any, effects: EffectsHandles) => void;
+type EffectFn = (action: ReturnAction, effects: EffectsHandles) => void;
 
-export type EffectRegister = <TAction>(actions: TAction, factory: EffectFactory<TAction>) => void;
+// export type EffectRegister = <TAction>(actions: TAction, factory: EffectFactory<TAction>) => void;
 export type Effects<TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in keyof TAction]: () => Generator; };
 
 export class EffectFactory<TAction> {

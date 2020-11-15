@@ -10,7 +10,7 @@ const Index: React.FC = () => {
 	const [fetchLogout] = useEffectAction(accountModel.action.fetchLogout);
 
 	const [refresh, setRefresh] = useState(false);
-	
+
 	useEffect(() => {
 		fetchLogin({
 			username: "234",

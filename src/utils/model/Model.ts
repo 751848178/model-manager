@@ -1,8 +1,8 @@
 import { Action } from 'redux';
 import { put } from 'redux-saga/effects';
 import { actionFactory, ActionGenerator } from './Action';
-import { EffectFactory, EffectRegister, Effects } from './Effect';
-import { ReducerFactory, ReducerRegister, Reducers } from './Reducer';
+import { EffectFactory, Effects } from './Effect';
+import { ReducerFactory, Reducers } from './Reducer';
 import { SelectMap, selectorFactory } from './Selector';
 import { Dictionary, ModelOption } from './typing';
 
@@ -50,16 +50,16 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 		}
 	}
 
-	registerReducer(reducerRegister: ReducerRegister): Model<TState, TAction> {
+	registerReducer(reducerRegister: (actions: TAction, factory: ReducerFactory<TState, TAction>) => void): Model<TState, TAction> {
 		const reducerFactory = new ReducerFactory<TState, TAction>();
-		reducerRegister<TState, TAction>(this.action, reducerFactory);
+		reducerRegister(this.action, reducerFactory);
 		this._reducers = reducerFactory.reducers;
 		return this;
 	};
 
-	registerEffect(effectRegister: EffectRegister): Model<TState, TAction> {
+	registerEffect(effectRegister: (actions: TAction, factory: EffectFactory<TAction>) => void): Model<TState, TAction> {
 		const effectFactory = new EffectFactory<TAction>();
-		effectRegister<TAction>(this.action, effectFactory);
+		effectRegister(this.action, effectFactory);
 		this._effects = effectFactory.effects;
 		return this;
 	};

@@ -23,14 +23,14 @@ const accountModule = new Model({
 		};
 	}
 }).registerReducer((modelAction, factory) => {
-	factory.register((modelAction as any).fetchLogin, (state, { payload }) => {
+	factory.register(modelAction.fetchLogin, (state, { payload }) => {
 		return {
 			...state,
 			userInfo: payload
 		};
 	});
 }).registerEffect((modelAction, factory) => {
-	factory.register((modelAction as any).fetchLogout, function* (payload, { put }) {
+	factory.register(modelAction.fetchLogout, function* (payload, { put }) {
 		yield new Promise((resolve, reject) => {
 			setTimeout(() => {
 				resolve();

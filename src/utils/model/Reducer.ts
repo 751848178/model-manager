@@ -23,7 +23,7 @@ const constActions = {
 			..._action.payload,
 		};
 	},
-}
+};
 
 // export type ReducerRegister<TState, TAction> = <TState, TAction>(actions: TAction, factory: ReducerFactory<TState, TAction>) => void;
 export type Reducers<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in ReducerAction<TAction>]: Reducer<TState>; };

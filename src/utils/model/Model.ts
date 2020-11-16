@@ -45,8 +45,15 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 
 	setState<TPayload>(payload: TPayload) {
 		return {
-			type: 'SET_STATE',
+			type: '@@SET_STATE',
 			payload,
+		}
+	}
+
+	reset() {
+		return {
+			type: '@@RESET',
+			payload: this.initialState,
 		}
 	}
 
@@ -63,8 +70,4 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 		this._effects = effectFactory.effects;
 		return this;
 	};
-
-	reset() {
-		put(this.setState(this.initialState));
-	}
 }

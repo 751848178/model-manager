@@ -2,7 +2,28 @@ import { Reducer } from "redux";
 import { ActionGenerator } from "./Action";
 import { Dictionary } from "./typing";
 
-export type ReducerAction<TAction> = keyof TAction | 'SET_STATE';
+export type ReducerAction<TAction> = keyof TAction | '@@SET_STATE' | '@@RESET';
+
+const constActions = {
+	'@@SET_STATE': <TState>(state: TState, _action: any) => {
+		if (_action.type !== '@@SET_STATE') {
+			return state;
+		}
+		return {
+			...state,
+			..._action.payload,
+		};
+	},
+	'@@RESET': <TState>(state: TState, _action: any) => {
+		if (_action.type !== '@@RESET') {
+			return state;
+		}
+		return {
+			...state,
+			..._action.payload,
+		};
+	},
+}
 
 // export type ReducerRegister<TState, TAction> = <TState, TAction>(actions: TAction, factory: ReducerFactory<TState, TAction>) => void;
 export type Reducers<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in ReducerAction<TAction>]: Reducer<TState>; };
@@ -15,15 +36,10 @@ export class ReducerFactory<TState, TAction> {
 	}
 
 	constructor() {
-		this._reducers.SET_STATE = <TState>(state: TState, _action: any) => {
-			if (_action.type !== 'SET_STATE') {
-				return state;
-			}
-			return {
-				...state,
-				..._action.payload,
-			};
-		};
+		this._reducers = {
+			...this._reducers,
+			...constActions,
+		}
 	}
 
 	register(modelAction: ActionGenerator, reducer: Reducer<TState>): ReducerFactory<TState, TAction> {

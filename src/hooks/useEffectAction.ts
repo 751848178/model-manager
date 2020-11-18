@@ -18,6 +18,7 @@ export default function useEffectAction(action: ActionGenerator, deps: Dependenc
 	const dispatch = useDispatch();
 	const dispatchAction = useCallback((data?: any) => {
 		return dispatch(action(data));
-	}, [dispatch, ...deps]);
+	}, [action, dispatch, ...deps]);
+	
 	return [dispatchAction];
 }

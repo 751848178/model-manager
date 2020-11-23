@@ -18,7 +18,7 @@ const accountModule = new Model({
 	namespace: "account",
 	actions: (actionCreator) => {
 		return {
-			fetchLogin: actionCreator("login"),
+			fetchLogin: actionCreator<UserInfo>("login"),
 			fetchLogout: actionCreator("logout"),
 		};
 	}

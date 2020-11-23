@@ -8,10 +8,10 @@ export interface EffectsHandles {
 	all: any;
 }
 
-type EffectFn = (action: ReturnAction, effects: EffectsHandles) => void;
+type EffectFn = (action: ReturnAction<any, any>, effects: EffectsHandles) => void;
 
 // export type EffectRegister = <TAction>(actions: TAction, factory: EffectFactory<TAction>) => void;
-export type Effects<TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in keyof TAction]: () => Generator; };
+export type Effects<TAction = Dictionary<Record<string, ActionGenerator<any, any>>>> = { [action in keyof TAction]: () => Generator; };
 
 export class EffectFactory<TAction> {
 	constructor() { }
@@ -21,7 +21,7 @@ export class EffectFactory<TAction> {
 		return this._effects;
 	}
 
-	register(modelAction: ActionGenerator, effect: EffectFn, takeHandle?: any): EffectFactory<TAction> {
+	register(modelAction: ActionGenerator<any, any>, effect: EffectFn, takeHandle?: any): EffectFactory<TAction> {
 		const { type } = modelAction();
 		function* _effect() {
 			yield (takeHandle || takeEvery)(type, function* (payload: any) {

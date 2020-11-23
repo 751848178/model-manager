@@ -26,7 +26,7 @@ const constActions = {
 };
 
 // export type ReducerRegister<TState, TAction> = <TState, TAction>(actions: TAction, factory: ReducerFactory<TState, TAction>) => void;
-export type Reducers<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator>>> = { [action in ReducerAction<TAction>]: Reducer<TState>; };
+export type Reducers<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator<any, any>>>> = { [action in ReducerAction<TAction>]: Reducer<TState>; };
 
 export class ReducerFactory<TState, TAction> {
 
@@ -42,7 +42,7 @@ export class ReducerFactory<TState, TAction> {
 		}
 	}
 
-	register(modelAction: ActionGenerator, reducer: Reducer<TState>): ReducerFactory<TState, TAction> {
+	register(modelAction: ActionGenerator<any, any>, reducer: Reducer<TState>): ReducerFactory<TState, TAction> {
 		const { type } = modelAction();
 		const _reducer: Reducer = (state: TState, _action: any) => {
 			if (_action.type !== type) {

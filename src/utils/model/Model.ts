@@ -7,7 +7,7 @@ import { SelectMap, selectorFactory } from './Selector';
 import { Dictionary, ModelOption } from './typing';
 
 
-export class Model<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator>>> {
+export class Model<TState = Dictionary, TAction = Dictionary<Record<string, ActionGenerator<any, any>>>> {
 	private initialState: TState = {} as TState;
 	private namespace: string = '';
 	private _select: SelectMap<TState>;

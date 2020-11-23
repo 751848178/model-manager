@@ -2,14 +2,14 @@ import { Action } from "redux";
 
 export type ActionCreator<TAction> = (createAction: CreateAction) => TAction;
 
-export type ReturnAction<TPayload = {}, TMeta = {}> = Action<string> & {
+export type ReturnAction<TPayload extends any, TMeta extends any> = Action<string> & {
 	payload: TPayload | undefined,
 	meta: TMeta | undefined,
 };
 
-export type ActionGenerator<TPayload = {}, TMeta = {}> = (payload?: TPayload, meta?: TMeta) => ReturnAction<TPayload, TMeta>
+export type ActionGenerator<TPayload extends any, TMeta extends any> = (payload?: TPayload, meta?: TMeta) => ReturnAction<TPayload, TMeta>
 
-export type CreateAction = <TPayload = {}, TMeta = {}>(type: string) => ActionGenerator<TPayload, TMeta>;
+export type CreateAction = <TPayload extends any = unknown, TMeta extends any = unknown>(type: string) => ActionGenerator<TPayload, TMeta>;
 
 export function createAction<TPayload, TMeta>(type: string): ActionGenerator<TPayload, TMeta> {
 	return (payload?: TPayload, meta?: TMeta): ReturnAction<TPayload, TMeta> => {

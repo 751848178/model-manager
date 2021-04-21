@@ -26,18 +26,19 @@ export class EffectFactory<TAction> {
 		const { type } = modelAction();
 		function* _effect() {
 			yield (takeHandle || takeEvery)(type, function* (payload: any) {
-        function* _put(data: any) {
-          return yield put({
-            type,
-            payload: data,
-          });
-        }
-        yield effect(payload, {
-          put,
-          _put,
-          call,
-          all,
-        });
+				function* _put(data: any) {
+				// @ts-ignore
+				return yield put({
+					type,
+					payload: data,
+				});
+				}
+				yield effect(payload, {
+					put,
+					_put,
+					call,
+					all,
+				});
 			});
 		}
 		this._effects[<keyof TAction>type] = _effect;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, compose } from "redux";
 import { TabBar } from "antd-mobile";
 import createSagaMiddleware from "redux-saga";
 import Index from "./pages/Index";
@@ -14,7 +14,20 @@ import models from "@model/index";
 modelManager.registerModels(Object.values(models));
 
 const sagaMiddleware = createSagaMiddleware();
-const store = createStore(modelManager.getReducers(), applyMiddleware(sagaMiddleware));
+
+const store = process.env.NODE_ENV === 'production' ? (
+  createStore(modelManager.getReducers(), applyMiddleware(sagaMiddleware))
+) : (
+  // @ts-ignore
+  window.__REDUX_DEVTOOLS_EXTENSION__ ? (
+      // @ts-ignore
+      createStore(modelManager.getReducers(), compose(applyMiddleware(sagaMiddleware), window.__REDUX_DEVTOOLS_EXTENSION__()))
+  ) : (
+      createStore(modelManager.getReducers(), applyMiddleware(sagaMiddleware))
+  )
+)
+
+// const store = createStore(modelManager.getReducers(), applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(modelManager.getEffects());
 
 const App: React.FC = () => {

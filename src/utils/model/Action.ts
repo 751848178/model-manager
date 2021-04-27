@@ -1,6 +1,11 @@
-import { Action } from "redux";
+import { Action, AnyAction } from "redux";
 
 export type ActionCreator<TAction> = (createAction: CreateAction) => TAction;
+
+export type BaseAction<TPayload> = {
+	setState: (payload?: TPayload) => AnyAction;
+	reset: () => AnyAction;
+};
 
 export type ReturnAction<TPayload extends any, TMeta extends any> = Action<string> & {
 	payload: TPayload | undefined,

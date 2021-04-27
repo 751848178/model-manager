@@ -37,7 +37,7 @@ const accountModule = new Model({
 			}, 3000);
 		});
 		
-		yield put(accountModule.setState({
+		yield put(modelAction.setState({
 			userInfo: {
 				username: "",
 				password: "",

@@ -1,6 +1,6 @@
 import { Action } from 'redux';
 import { put } from 'redux-saga/effects';
-import { actionFactory, ActionGenerator } from './Action';
+import { actionFactory, ActionGenerator, BaseAction } from './Action';
 import { EffectFactory, Effects } from './Effect';
 import { ReducerFactory, Reducers } from './Reducer';
 import { SelectMap, selectorFactory } from './Selector';
@@ -16,8 +16,12 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 	};
 
 	private _action: Readonly<TAction> = {} as TAction;
-	get action(): Readonly<TAction> {
-		return this._action;
+	private baseAction: BaseAction<any>;
+	get action(): Readonly<TAction> & BaseAction<any> {
+		return {
+			...this._action,
+			...this.baseAction,
+		};
 	}
 
 	private _reducers: Reducers<TState, TAction> = {} as Reducers<TState, TAction>;
@@ -41,31 +45,23 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 		this.namespace = namespace;
 		this._select = selectorFactory(namespace, initialState);
 		this._action = actionFactory(actions);
+		this.baseAction = actionFactory((actionCreator) => {
+			return {
+				setState: actionCreator<any>("@@SET_STATE"),
+				reset: actionCreator("@@RESET"),
+			};
+		});
 	}
 
-	setState<TPayload>(payload: TPayload) {
-		return {
-			type: '@@SET_STATE',
-			payload,
-		}
-	}
-
-	reset() {
-		return {
-			type: '@@RESET',
-			payload: this.initialState,
-		}
-	}
-
-	registerReducer(reducerRegister: (actions: TAction, factory: ReducerFactory<TState, TAction>) => void): Model<TState, TAction> {
-		const reducerFactory = new ReducerFactory<TState, TAction>();
+	registerReducer(reducerRegister: (actions: TAction & BaseAction<any>, factory: ReducerFactory<TState, TAction & BaseAction<any>>) => void): Model<TState, TAction> {
+		const reducerFactory = new ReducerFactory<TState, TAction & BaseAction<any>>();
 		reducerRegister(this.action, reducerFactory);
 		this._reducers = reducerFactory.reducers;
 		return this;
 	};
 
-	registerEffect(effectRegister: (actions: TAction, factory: EffectFactory<TAction>) => void): Model<TState, TAction> {
-		const effectFactory = new EffectFactory<TAction>();
+	registerEffect(effectRegister: (actions: TAction & BaseAction<any>, factory: EffectFactory<TAction & BaseAction<any>>) => void): Model<TState, TAction> {
+		const effectFactory = new EffectFactory<TAction & BaseAction<any>>();
 		effectRegister(this.action, effectFactory);
 		this._effects = effectFactory.effects;
 		return this;

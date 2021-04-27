@@ -28,10 +28,10 @@ export class EffectFactory<TAction> {
 			yield (takeHandle || takeEvery)(type, function* (payload: any) {
 				function* _put(data: any) {
 				// @ts-ignore
-				return yield put({
-					type,
-					payload: data,
-				});
+					return yield put({
+						type,
+						...data,
+					});
 				}
 				yield effect(payload, {
 					put,

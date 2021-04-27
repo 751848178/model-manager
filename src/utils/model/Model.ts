@@ -16,8 +16,8 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 	};
 
 	private _action: Readonly<TAction> = {} as TAction;
-	private baseAction: BaseAction<any>;
-	get action(): Readonly<TAction> & BaseAction<any> {
+	private baseAction: BaseAction<TState>;
+	get action(): Readonly<TAction> & BaseAction<TState> {
 		return {
 			...this._action,
 			...this.baseAction,
@@ -28,8 +28,8 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 	get reducers(): Readonly<Reducers<TState>> {
 		return {
 			[this.namespace]: (state: any = this.initialState, action: Action<keyof TAction>) => {
-				const reducer = this._reducers[action.type] || (() => void 0);
-				return reducer(state, action) || state;
+				const reducer = this._reducers[action.type];
+				return reducer?.(state, action) || state;
 			}
 		};
 	}
@@ -39,31 +39,45 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 		return this._effects;
 	}
 
+	private _reducerFactory: ReducerFactory<TState, TAction & BaseAction<TState>> = new ReducerFactory<TState, TAction & BaseAction<TState>>();
+	private _effectFactory: EffectFactory<TAction & BaseAction<TState>> = new EffectFactory<TAction & BaseAction<TState>>();
+
 	constructor(options: ModelOption<TState, TAction>) {
 		const { actions, namespace, initialState } = options;
 		this.initialState = initialState;
 		this.namespace = namespace;
 		this._select = selectorFactory(namespace, initialState);
-		this._action = actionFactory(actions);
-		this.baseAction = actionFactory((actionCreator) => {
+		this._action = actionFactory(namespace, actions);
+		this.baseAction = actionFactory(namespace, (actionCreator) => {
 			return {
-				setState: actionCreator<any>("@@SET_STATE"),
+				setState: actionCreator<Partial<TState>>("@@SET_STATE"),
 				reset: actionCreator("@@RESET"),
 			};
 		});
+		this.registerReducer((modelAction, factory) => {
+			factory.register(modelAction.setState, (state, { payload }) => {
+				console.log(state, payload);
+				return {
+					...state,
+					...payload,
+				};
+			}).register(modelAction.reset, () => {
+				return {
+					...this.initialState,
+				};
+			});
+		});
 	}
 
-	registerReducer(reducerRegister: (actions: TAction & BaseAction<any>, factory: ReducerFactory<TState, TAction & BaseAction<any>>) => void): Model<TState, TAction> {
-		const reducerFactory = new ReducerFactory<TState, TAction & BaseAction<any>>();
-		reducerRegister(this.action, reducerFactory);
-		this._reducers = reducerFactory.reducers;
+	registerReducer(reducerRegister: (actions: TAction & BaseAction<TState>, factory: ReducerFactory<TState, TAction & BaseAction<TState>>) => void): Model<TState, TAction> {
+		reducerRegister(this.action, this._reducerFactory);
+		this._reducers = this._reducerFactory.reducers;
 		return this;
 	};
 
-	registerEffect(effectRegister: (actions: TAction & BaseAction<any>, factory: EffectFactory<TAction & BaseAction<any>>) => void): Model<TState, TAction> {
-		const effectFactory = new EffectFactory<TAction & BaseAction<any>>();
-		effectRegister(this.action, effectFactory);
-		this._effects = effectFactory.effects;
+	registerEffect(effectRegister: (actions: TAction & BaseAction<TState>, factory: EffectFactory<TAction & BaseAction<TState>>) => void): Model<TState, TAction> {
+		effectRegister(this.action, this._effectFactory);
+		this._effects = this._effectFactory.effects;
 		return this;
 	};
 }

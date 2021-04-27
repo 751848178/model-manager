@@ -45,10 +45,14 @@ export class ReducerFactory<TState, TAction> {
 	register(modelAction: ActionGenerator<any, any>, reducer: Reducer<TState>): ReducerFactory<TState, TAction> {
 		const { type } = modelAction();
 		const _reducer: Reducer = (state: TState, _action: any) => {
-			if (_action.type !== type) {
+			const { type: _type, ...payload } = _action
+			if (_type !== type) {
 				return state;
 			}
-			const newState = reducer(state, _action);
+			const newState = reducer(state, {
+				type,
+				payload,
+			});
 			return newState;
 		}
 		this._reducers[<keyof TAction>type] = _reducer;

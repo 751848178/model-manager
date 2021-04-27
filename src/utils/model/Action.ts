@@ -3,13 +3,12 @@ import { Action, AnyAction } from "redux";
 export type ActionCreator<TAction> = (createAction: CreateAction) => TAction;
 
 export type BaseAction<TPayload> = {
-	setState: (payload?: TPayload) => AnyAction;
-	reset: () => AnyAction;
+	setState: (payload?: Partial<TPayload>) => ReturnAction<Partial<TPayload>, any>;
+	reset: () => ReturnAction<TPayload, any>;
 };
 
-export type ReturnAction<TPayload extends any, TMeta extends any> = Action<string> & {
-	payload: TPayload | undefined,
-	meta: TMeta | undefined,
+export type ReturnAction<TPayload extends any, TMeta extends any> = /* Partial<TPayload> &  */Action<string> & {
+	meta?: TMeta | undefined;
 };
 
 export type ActionGenerator<TPayload extends any, TMeta extends any> = (payload?: TPayload, meta?: TMeta) => ReturnAction<TPayload, TMeta>
@@ -18,18 +17,25 @@ export type CreateAction = <TPayload extends any = unknown, TMeta extends any = 
 
 export function createAction<TPayload, TMeta>(type: string): ActionGenerator<TPayload, TMeta> {
 	return (payload?: TPayload, meta?: TMeta): ReturnAction<TPayload, TMeta> => {
-		return {
+		const action: ReturnAction<TPayload, TMeta> = {
 			type,
-			payload,
-			meta,
+			...payload,
 		}
+		if (meta) {
+			action.meta = meta;
+		}
+		return action;
 	}
 }
 
-export function actionFactory<TAction>(actionCreator: ActionCreator<TAction>): TAction {
+export function createActionByNamespace(namespace: string) {
+	return <TPayload, TMeta>(type: string): ActionGenerator<TPayload, TMeta> => createAction<TPayload, TMeta>(`${namespace}/${type}`);
+}
+
+export function actionFactory<TAction>(namespace: string, actionCreator: ActionCreator<TAction>): TAction {
 	let action = {} as TAction;
 	if (typeof actionCreator === 'function') {
-		action = actionCreator(createAction);
+		action = actionCreator(createActionByNamespace(namespace));
 	}
 	return action;
 }

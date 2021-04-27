@@ -31,18 +31,26 @@ const accountModule = new Model({
 	});
 }).registerEffect((modelAction, factory) => {
 	factory.register(modelAction.fetchLogout, function* (payload, { put }) {
-		yield new Promise((resolve, reject) => {
+		yield new Promise<void>((resolve, reject) => {
 			setTimeout(() => {
 				resolve();
 			}, 3000);
 		});
+
+		console.log(123, modelAction.setState({
+			userInfo: {
+				username: "",
+				password: "",
+				nickname: "",
+			},
+		}));
 		
 		yield put(modelAction.setState({
 			userInfo: {
 				username: "",
 				password: "",
 				nickname: "",
-			}
+			},
 		}));
 	});
 });

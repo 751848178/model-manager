@@ -56,7 +56,6 @@ export class Model<TState = Dictionary, TAction = Dictionary<Record<string, Acti
 		});
 		this.registerReducer((modelAction, factory) => {
 			factory.register(modelAction.setState, (state, { payload }) => {
-				console.log(state, payload);
 				return {
 					...state,
 					...payload,

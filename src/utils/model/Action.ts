@@ -7,7 +7,8 @@ export type BaseAction<TPayload> = {
 	reset: () => ReturnAction<TPayload, any>;
 };
 
-export type ReturnAction<TPayload extends any, TMeta extends any> = /* Partial<TPayload> &  */Action<string> & {
+export type ReturnAction<TPayload extends any, TMeta extends any> = Action<string> & {
+	payload?: TPayload;
 	meta?: TMeta | undefined;
 };
 
@@ -19,7 +20,7 @@ export function createAction<TPayload, TMeta>(type: string): ActionGenerator<TPa
 	return (payload?: TPayload, meta?: TMeta): ReturnAction<TPayload, TMeta> => {
 		const action: ReturnAction<TPayload, TMeta> = {
 			type,
-			...payload,
+			payload,
 		}
 		if (meta) {
 			action.meta = meta;

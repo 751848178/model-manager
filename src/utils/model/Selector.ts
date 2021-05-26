@@ -1,15 +1,16 @@
 import { Dictionary } from "./typing";
 
 
-export type SelectMap<TState = Dictionary> = Record<keyof TState, <S, R>(state: S) => R>;
 
-export function selectorFactory<T>(namespace: string, initialState: Dictionary<T>): Record<keyof T, <S, R>(state: S) => R> {
-	let selector = {} as Record<keyof T, <S, R>(state: S) => R>;
+export type SelectMap<TState> = { [P in keyof TState]: (state: TState) => TState[keyof TState] }
+
+export function selectorFactory<T>(namespace: string, initialState: Dictionary<T>): SelectMap<T> {
+	let selector = {} as SelectMap<T>;
 	for (const key in initialState) {
-		selector[key] = <S, R>(globalState: any) => {
-			const state = globalState?.[namespace || ''];
-			return state?.[key] as S;
-		}
+		selector[key] = (globalState: any): T[keyof T] => {
+			const state: T = globalState?.[namespace || ''];
+			return state?.[key] as T[keyof T];
+		};
 	}
 	return selector;
 }
